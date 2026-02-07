@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock News Sentiment Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 20px; }
+        input[type="text"] { width: 100%; padding: 12px; font-size: 16px; }
+        button { padding: 12px 24px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .article { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .positive { color: green; font-weight: bold; }
+        .negative { color: red; font-weight: bold; }
+        .loading { display: none; color: #007bff; margin: 20px 0; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <h1>Stock News Sentiment Tracker</h1>
+    <p>Enter a stock ticker (e.g., NVDA) to see recent news with AI sentiment analysis.</p>
+
+    <form method="post">
+        <input type="text" name="ticker" placeholder="Ticker (e.g., NVDA)" required>
+        <button type="submit">Analyze</button>
+    </form>
+
+    <div class="loading" id="loading">Processing... (may take 30–90 seconds)</div>
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    {% if results %}
+        <h2>Recent News & AI Sentiment</h2>
+        {% for item in results %}
+            <div class="article">
+                <h3><a href="{{ item.url }}" target="_blank">{{ item.title }}</a></h3>
+                {% if item.sentiment is defined %}
+                    <p>Sentiment score: 
+                        <span class="{% if item.sentiment > 0 %}positive{% elif item.sentiment < 0 %}negative{% else %}neutral{% endif %}">
+                            {{ item.sentiment|round(2) }}
+                        </span>
+                    </p>
+                    <p>{{ item.summary }}</p>
+                {% else %}
+                    <p style="color: red;">{{ item.error }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <script>
+        document.querySelector("form").onsubmit = function() {
+            document.getElementById("loading").style.display = "block";
+        };
+    </script>
+</body>
+</html>
